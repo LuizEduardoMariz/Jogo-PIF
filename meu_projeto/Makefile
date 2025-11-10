@@ -3,48 +3,51 @@ TARGET      = jogo-pif
 SRCDIR      = src
 INCDIR      = include
 BUILDDIR    = build
+ASSETDIR    = assets
 
 # Encontra todos os arquivos .c na pasta src/
 SRC         = $(wildcard $(SRCDIR)/*.c)
-# Converte a lista de arquivos .c para uma lista de arquivos .o na pasta build/
+# Converte .c -> .o dentro da pasta build/
 OBJ         = $(patsubst $(SRCDIR)/%.c,$(BUILDDIR)/%.o,$(SRC))
 
 # --- Configurações do Compilador ---
 CC          = gcc
-# Inclui o diretório de cabeçalhos e as flags comuns
-CFLAGS      = -I$(INCDIR) -Wall -Wextra -std=c99
-# Flags de Otimização e Debug (Troque -O2 por -g para debug)
-CFLAGS     += -O2
+CFLAGS      = -I$(INCDIR) -Wall -Wextra -std=c99 -O2
 
 # --- Configurações da Raylib (Linux/WSL) ---
-# Flags para linkar a biblioteca raylib e suas dependências no Linux
-LDFLAGS     = -lraylib -lGL -lm -lpthread -ldl -lrt
+LDFLAGS     = -lraylib -lGL -lm -lpthread -ldl -lrt -lX11
 
-# --- Regra Principal: Compilação Completa ---
-.PHONY: all clean
+# --- Regras Principais ---
+.PHONY: all clean run assets
 
 all: $(BUILDDIR) $(TARGET)
 
-# Cria a pasta 'build' se ela não existir
+# Cria a pasta build se não existir
 $(BUILDDIR):
 	@mkdir -p $(BUILDDIR)
 
-# Linka todos os arquivos .o para criar o executável final
+# Linka os objetos e cria o executável
 $(TARGET): $(OBJ)
 	$(CC) $(OBJ) -o $(TARGET) $(LDFLAGS)
+	@echo "✅ Build completo: ./$(TARGET)"
 
-# --- Regra de Compilação: Arquivos .c para .o ---
-# Esta regra compila cada arquivo .c em um arquivo .o e o coloca na pasta build/
+# Compila os .c individualmente
 $(BUILDDIR)/%.o: $(SRCDIR)/%.c
 	$(CC) $(CFLAGS) -c $< -o $@
 
-# --- Regras Auxiliares ---
-
-# Executa o jogo
+# Executa o jogo (assegurando que o som/imagens sejam encontrados)
 run: $(TARGET)
-	./$(TARGET)
+	@echo "🎮 Executando $(TARGET)..."
+	@./$(TARGET)
 
-# Limpa o projeto (remove a pasta build/ e o executável)
+# Limpa o projeto
 clean:
 	@rm -rf $(BUILDDIR) $(TARGET)
-	@echo "Projeto limpo!"
+	@echo "🧹 Projeto limpo!"
+
+# Cria as pastas de assets se ainda não existirem
+assets:
+	@mkdir -p $(ASSETDIR)/sounds
+	@mkdir -p $(ASSETDIR)/textures
+	@mkdir -p $(ASSETDIR)/fonts
+	@echo "📁 Pastas de assets criadas com sucesso!"

@@ -1,29 +1,37 @@
-#include "mapa.h"
-#include "personagem.h"
+#include "../include/mapa.h"
+#include "../include/personagem.h"
 #include <raylib.h>
-// ... inclua seus outros arquivos .h aqui (keyboard.h, screen.h, timer.h)
-
-Jogador astronauta;
 
 int main(void)
 {
-    // ... Código de inicialização ...
+    InitWindow(800, 600, "Labirinto Espacial - Som e Moedas Animadas");
+    SetTargetFPS(60);
+
+    InitCoinSound(); // 🔊 Inicia o som da moeda
+
+    int playerX = 150;
+    int playerY = 150;
 
     while (!WindowShouldClose())
     {
-        // ... Lógica do jogo (Update) ...
+        // Movimento básico do jogador (exemplo)
+        if (IsKeyDown(KEY_RIGHT)) playerX += 2;
+        if (IsKeyDown(KEY_LEFT)) playerX -= 2;
+        if (IsKeyDown(KEY_UP)) playerY -= 2;
+        if (IsKeyDown(KEY_DOWN)) playerY += 2;
+
+        // Atualiza e checa colisões
+        UpdateCoins();
+        CheckCoinCollision(playerX, playerY);
 
         BeginDrawing();
-
             ClearBackground(BLACK);
-
-            DrawGameMap(); // Desenha o mapa
-
-            // ... Desenho do Player, etc. ...
-
+            DrawGameMap();
+            DrawCircle(playerX, playerY, 10, WHITE);
         EndDrawing();
     }
 
-    // ... Código de finalização ...
+    UnloadCoinSound(); // 🔊 Libera o som
+    CloseWindow();
     return 0;
 }

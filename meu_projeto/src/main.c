@@ -5,7 +5,7 @@
 #include "raylib.h"
 #include "mapa.h"
 
-#define MAX_MONSTROS 20
+#define MAX_MONSTROS 3
 #define TEMPO_TOTAL_NIVEL 60.0
 #define TEMPO_POR_MOEDA 3.0
 

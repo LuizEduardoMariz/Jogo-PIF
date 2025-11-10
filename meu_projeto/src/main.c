@@ -1,37 +1,54 @@
-#include "../include/mapa.h"
-#include "../include/personagem.h"
-#include <raylib.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <time.h>
+#include "screen.h"
+#include "raylib.h"
+#include "mapa.h"
 
-int main(void)
-{
-    InitWindow(800, 600, "Labirinto Espacial - Som e Moedas Animadas");
+#define MAX_MONSTROS 20
+#define TEMPO_TOTAL_NIVEL 60.0
+#define TEMPO_POR_MOEDA 3.0
+
+int main() {
+    Player player;
+    Monstro *monstros = NULL;
+    Moeda *moedas = NULL;
+    double tempo_inicial;
+
+    srand(time(NULL));
+
+    player_inicializa(&player, 100, 100);
+    monstros_inicializar(&monstros, MAX_MONSTROS);
+    tempo_inicial = now_seconds();
+
+    InitWindow(800, 600, "Jogo das Moedas");
     SetTargetFPS(60);
+    InitCoinSound();
 
-    InitCoinSound(); // 🔊 Inicia o som da moeda
+    while (!WindowShouldClose() && player.vivo) {
+        double agora = now_seconds();
+        double dt = agora - tempo_inicial;
 
-    int playerX = 150;
-    int playerY = 150;
+        if (IsKeyPressed(KEY_UP)) player.y -= 10;
+        if (IsKeyPressed(KEY_DOWN)) player.y += 10;
+        if (IsKeyPressed(KEY_LEFT)) player.x -= 10;
+        if (IsKeyPressed(KEY_RIGHT)) player.x += 10;
 
-    while (!WindowShouldClose())
-    {
-        // Movimento básico do jogador (exemplo)
-        if (IsKeyDown(KEY_RIGHT)) playerX += 2;
-        if (IsKeyDown(KEY_LEFT)) playerX -= 2;
-        if (IsKeyDown(KEY_UP)) playerY -= 2;
-        if (IsKeyDown(KEY_DOWN)) playerY += 2;
+        CheckCoinCollision(player.x, player.y);
 
-        // Atualiza e checa colisões
-        UpdateCoins();
-        CheckCoinCollision(playerX, playerY);
+        monstros_atualizar(monstros, MAX_MONSTROS, dt);
+        verificar_condicoes_de_fim(&player, tempo_inicial);
 
         BeginDrawing();
-            ClearBackground(BLACK);
-            DrawGameMap();
-            DrawCircle(playerX, playerY, 10, WHITE);
+        ClearBackground(RAYWHITE);
+        DrawGameMap();
+        DrawCircle(player.x, player.y, 8, BLUE);
         EndDrawing();
     }
 
-    UnloadCoinSound(); // 🔊 Libera o som
+    UnloadCoinSound();
     CloseWindow();
+    monstros_liberar(&monstros);
+
     return 0;
 }

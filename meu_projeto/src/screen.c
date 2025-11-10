@@ -8,21 +8,95 @@
 #include "raylib.h"
 
 bool mapa_inicializar(Mapa *m, int linhas, int colunas) {
+    if (!m || linhas <= 0 || colunas <= 0)
+        return false;
+
+    m->linhas = linhas;
+    m->colunas = colunas;
+
+    m->celulas = malloc(linhas * sizeof(char *));
+    if (!m->celulas)
+        return false;
+
+    for (int i = 0; i < linhas; i++) {
+        m->celulas[i] = malloc(colunas * sizeof(char));
+        if (!m->celulas[i])
+            return false;
+        memset(m->celulas[i], ' ', colunas);
+    }
+
+    return true;
 }
 
 void mapa_liberar(Mapa *m) {
+    if (!m || !m->celulas)
+        return;
+
+    for (int i = 0; i < m->linhas; i++)
+        free(m->celulas[i]);
+    free(m->celulas);
+    m->celulas = NULL;
+    m->linhas = 0;
+    m->colunas = 0;
 }
 
 bool mapa_carregar_de_arquivo(Mapa *m, const char *caminho) {
+    FILE *f = fopen(caminho, "r");
+    if (!f) return false;
+
+    int linhas, colunas;
+    fscanf(f, "%d %d\n", &linhas, &colunas);
+
+    if (!mapa_inicializar(m, linhas, colunas)) {
+        fclose(f);
+        return false;
+    }
+
+    for (int i = 0; i < linhas; i++) {
+        for (int j = 0; j < colunas; j++) {
+            int c = fgetc(f);
+            if (c == '\n' || c == '\r') { j--; continue; }
+            m->celulas[i][j] = (char)c;
+        }
+    }
+
+    fclose(f);
+    return true;
 }
 
 bool mapa_salvar_para_arquivo(const Mapa *m, const char *caminho) {
+    if (!m || !m->celulas)
+        return false;
+
+    FILE *f = fopen(caminho, "w");
+    if (!f)
+        return false;
+
+    fprintf(f, "%d %d\n", m->linhas, m->colunas);
+    for (int i = 0; i < m->linhas; i++) {
+        for (int j = 0; j < m->colunas; j++)
+            fputc(m->celulas[i][j], f);
+        fputc('\n', f);
+    }
+
+    fclose(f);
+    return true;
 }
 
 CellType mapa_get(const Mapa *m, int linha, int coluna) {
+    if (!m || !m->celulas)
+        return CEL_VAZIA;
+    if (linha < 0 || linha >= m->linhas || coluna < 0 || coluna >= m->colunas)
+        return CEL_VAZIA;
+    return (CellType)m->celulas[linha][coluna];
 }
 
 void mapa_set(Mapa *m, int linha, int coluna, CellType tipo) {
+    if (!m || !m->celulas)
+        return;
+    if (linha < 0 || linha >= m->linhas || coluna < 0 || coluna >= m->colunas)
+        return;
+    m->celulas[linha][coluna] = (char)tipo;
 }
 
 Moeda *moeda_criar(int x, int y) {
@@ -110,12 +184,49 @@ void monstros_atualizar(Monstro *m, int qtd, double dt) {
 }
 
 void player_inicializa(Player *p, int x, int y) {
+    if (!p) return;
+    p->x = x;
+    p->y = y;
+    p->moedas_coletadas = 0;
+    p->vivo = 1;
 }
 
 void player_mover(Player *p, int dx, int dy, const Mapa *m) {
+    if (!p || !m || !m->celulas || !p->vivo)
+        return;
+
+    int novo_x = p->x + dx;
+    int novo_y = p->y + dy;
+
+    if (novo_y < 0 || novo_y >= m->linhas || novo_x < 0 || novo_x >= m->colunas)
+        return; //impede de sair do mapa
+
+    CellType destino = mapa_get(m, novo_y, novo_x);
+
+    if (destino == CEL_PAREDE)
+        return;   //define as paredes
+
+    if (destino == CEL_MOEDA) {
+        p->moedas_coletadas++;
+        mapa_set((Mapa *)m, novo_y, novo_x, CEL_VAZIA); //mecanica de moeda coletada
+    }
+    p->x = novo_x;
+    p->y = novo_y; //atualiza posição
+}
 }
 
+
 bool player_colide_monstro(const Player *p, Monstro *m, int qtd) {
+    if (!p || !monstros || qtd <= 0)
+        return false;
+
+    for (int i = 0; i < qtd; i++) {
+        if (!monstros[i].ativo)
+            continue;
+        if (p->x == monstros[i].x && p->y == monstros[i].y)
+            return true; // 💀 Colisão detectada
+    }
+    return false;
 }
 
 double now_seconds(void) {

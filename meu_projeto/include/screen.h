@@ -22,21 +22,19 @@ typedef struct {
     int x, y;
     int moedas_coletadas;
     bool vivo;
-    float speed;
-    int dir_x, dir_y; 
 } Player;
 
 typedef struct {
     int x, y;
     bool ativo;
     double tempo_spawn;
-    float speed;
 } Monstro;
 
 typedef struct Moeda {
     int x, y;
     struct Moeda *prox;
 } Moeda;
+
 
 typedef struct {
     int linhas, colunas;

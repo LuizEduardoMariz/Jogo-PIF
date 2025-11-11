@@ -176,7 +176,7 @@ void monstros_desativar(Monstro *m, int idx) {
     m[idx].tempo_spawn = 0.0;
 }
 
-void monstros_atualizar(Monstro *m, int qtd, double dt) {
+void monstros_atualizar(monstros, MAX_MONSTROS, dt, &player); {
     double agora = now_seconds();
     for (int i = 0; i < qtd; i++) {
         if (!monstros[i].ativo) continue;
@@ -193,7 +193,7 @@ void monstros_atualizar(Monstro *m, int qtd, double dt) {
         }
     }
 }
-}
+
 
 void player_inicializa(Player *p, int x, int y) {
     if (!p) return;
@@ -247,7 +247,7 @@ void raylib_finalizar_janela(void) {
     CloseWindow();
 }
 
-void verificar_condicoes_de_fim(Player *p, double tempo_inicial) {
+void verificar_condicoes_de_fim(const Player *p, double tempo_inicial) {
     double agora = now_seconds();
     double tempo_decorrido = agora - tempo_inicial;
     if (tempo_decorrido >= TEMPO_TOTAL_NIVEL) {

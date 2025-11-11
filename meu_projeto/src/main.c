@@ -5,14 +5,16 @@
 #include "raylib.h"
 #include "mapa.h"
 
-#define MAX_MONSTROS 3
-#define TEMPO_TOTAL_NIVEL 60.0
+//#define MAX_MONSTROS 3
+//#define TEMPO_TOTAL_NIVEL 60.0
 #define TEMPO_POR_MOEDA 3.0
+
+void verificar_condicoes_de_fim(const Player *player, double tempo_inicial);
 
 int main() {
     Player player;
     Monstro *monstros = NULL;
-    Moeda *moedas = NULL;
+    //Moeda *moedas = NULL;
     double tempo_inicial;
 
     srand(time(NULL));
@@ -36,7 +38,7 @@ int main() {
 
         CheckCoinCollision(player.x, player.y);
 
-        monstros_atualizar(monstros, MAX_MONSTROS, dt);
+        monstros_atualizar(monstros, MAX_MONSTROS, dt, &player);
         verificar_condicoes_de_fim(&player, tempo_inicial);
 
         BeginDrawing();

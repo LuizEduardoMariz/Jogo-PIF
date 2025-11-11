@@ -1,12 +1,15 @@
+#define _POSIX_C_SOURCE 199309L
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
 #include "screen.h"
 #include "cli-lib.h"
 #include "mapa.h"
+#include "keyboard.h"
 
-#define MAX_MONSTROS 3
-#define TEMPO_TOTAL_NIVEL 60.0
+
+//#define MAX_MONSTROS 3
+//#define TEMPO_TOTAL_NIVEL 60.0
 #define TEMPO_POR_MOEDA 3.0
 
 void verificar_condicoes_de_fim(Player *player, double tempo_inicial);

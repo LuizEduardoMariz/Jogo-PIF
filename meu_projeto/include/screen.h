@@ -70,4 +70,10 @@ int rand_int(int min, int max);
 void raylib_iniciar_janela(int largura, int altura, const char *titulo);
 void raylib_finalizar_janela(void);
 
+void screenInit(void);
+void screenClose(void);
+void screenClear(void);
+void screenGotoxy(int x, int y);
+void screenDrawBorders(void);
+
 #endif

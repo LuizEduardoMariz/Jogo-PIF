@@ -81,7 +81,17 @@ void monstros_liberar(Monstro **m) {
 }
 
 void monstros_atualizar(Monstro *monstros, int qtd, double dt, const Player *player) {
+    (void)dt; // para para de dar warning sem eu precisar mudar todas as chamadas
+
     double agora = now_seconds();
+    (void)agora;  // para para de dar warning sem eu precisar mudar todas as chamadas
     for (int i = 0; i < qtd; i++) {
         if (!monstros[i].ativo) continue;
-        int dx = (player->x > monstros[i].x) - (player->x
+        int dx = (player->x > monstros[i].x) - (player->x < monstros[i].x);
+        int dy = (player->y > monstros[i].y) - (player->y < monstros[i].y);
+
+        monstros[i].x += dx;
+        monstros[i].y += dy;
+    }
+}
+

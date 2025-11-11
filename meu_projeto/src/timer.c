@@ -2,10 +2,10 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <string.h>
-#include "timer.h"    
+#include "timer.h"
 #include "raylib.h"
 
-timer *head = NULL;  
+timer *head = NULL;
 
 void adicionarTimer(timer *t) {
     if (t == NULL) {
@@ -34,18 +34,27 @@ void removerTimer(timer *t) {
     }
 }
 
-
 timer *criarTimer(const char *nome, ModoTimer modo, float duracao, bool iniciar) {
     timer *t = (timer *)malloc(sizeof(timer));
 
     if (t == NULL) {
         return NULL;
     } else {
-        strncpy(t->nome, nome ? nome : "timer", NOME_TAM - 1);
-        t->nome[NOME_TAM - 1] = '\0';
+        if (nome != NULL) {
+            strncpy(t->nome, nome, NOME_TAM - 1);
+        } else {
+            strncpy(t->nome, "timer", NOME_TAM - 1);
+        }
 
+        t->nome[NOME_TAM - 1] = '\0';
         t->modo = modo;
-        t->duracao = duracao > 0 ? duracao : 0;
+
+        if (duracao > 0) {
+            t->duracao = duracao;
+        } else {
+            t->duracao = 0;
+        }
+
         t->decorrido = 0;
         t->ativo = iniciar;
         t->finalizado = false;
@@ -120,7 +129,11 @@ void definirDuracao(timer *t, float segundos) {
     if (t == NULL) {
         return;
     } else {
-        t->duracao = (segundos >= 0) ? segundos : 0;
+        if (segundos >= 0) {
+            t->duracao = segundos;
+        } else {
+            t->duracao = 0;
+        }
     }
 }
 
@@ -130,7 +143,9 @@ void atualizarTimer(timer *t, float dt) {
     } else if (t->ativo == false || t->finalizado == true) {
         return;
     } else {
-        t->decorrido += (dt > 0 ? dt : 0);
+        if (dt > 0) {
+            t->decorrido += dt;
+        }
 
         if (t->modo == REGRESSIVO) {
             if (t->decorrido >= t->duracao) {
@@ -161,14 +176,15 @@ void atualizarTodosTimers(void) {
     }
 }
 
-
 float valorTimer(const timer *t) {
     if (t == NULL) {
         return 0;
-    } else if (t->modo == REGRESSIVO) {
-        return t->duracao - t->decorrido;
     } else {
-        return t->decorrido;
+        if (t->modo == REGRESSIVO) {
+            return t->duracao - t->decorrido;
+        } else {
+            return t->decorrido;
+        }
     }
 }
 
@@ -192,7 +208,14 @@ char *formatarTimer(const timer *t, char *buffer, int tamanho, bool comMs) {
     if (t == NULL || buffer == NULL) {
         return NULL;
     } else {
-        float tempo = (t->modo == REGRESSIVO) ? (t->duracao - t->decorrido) : t->decorrido;
+        float tempo;
+
+        if (t->modo == REGRESSIVO) {
+            tempo = t->duracao - t->decorrido;
+        } else {
+            tempo = t->decorrido;
+        }
+
         if (tempo < 0) {
             tempo = 0;
         }
@@ -200,7 +223,7 @@ char *formatarTimer(const timer *t, char *buffer, int tamanho, bool comMs) {
         int total = (int)tempo;
         int min = total / 60;
         int seg = total % 60;
-        int ms = (int)((tempo - total) * 1000);
+        int ms  = (int)((tempo - total) * 1000);
 
         if (comMs) {
             snprintf(buffer, tamanho, "%02d:%02d.%03d", min, seg, ms);
@@ -211,7 +234,6 @@ char *formatarTimer(const timer *t, char *buffer, int tamanho, bool comMs) {
         return buffer;
     }
 }
-
 
 bool salvarMelhorTempo(const char *arquivo, float valor) {
     FILE *f = fopen(arquivo, "wb");

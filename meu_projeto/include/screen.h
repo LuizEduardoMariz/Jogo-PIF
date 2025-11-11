@@ -3,11 +3,11 @@
 
 #include <stdio.h>
 #include <stdbool.h>
-#include "cli-lib.h"  
+#include "cli-lib.h"
 
-#define MAX_MONSTROS 128  
-#define TEMPO_POR_MOEDA 3.0   
-#define TEMPO_TOTAL_NIVEL 60 
+#define MAX_MONSTROS 128
+#define TEMPO_POR_MOEDA 3.0
+#define TEMPO_TOTAL_NIVEL 60
 
 typedef enum {
     CEL_VAZIA = 0,
@@ -40,7 +40,6 @@ typedef struct {
     char **celulas;
 } Mapa;
 
-//para o mapa
 bool mapa_inicializar(Mapa *m, int linhas, int colunas);
 void mapa_liberar(Mapa *m);
 bool mapa_carregar_de_arquivo(Mapa *m, const char *caminho);
@@ -48,7 +47,6 @@ bool mapa_salvar_para_arquivo(const Mapa *m, const char *caminho);
 CellType mapa_get(const Mapa *m, int linha, int coluna);
 void mapa_set(Mapa *m, int linha, int coluna, CellType tipo);
 
-//para as moedas
 Moeda *moeda_criar(int x, int y);
 void moedas_insere_inicio(Moeda **head, int x, int y);
 void moedas_remover(Moeda **head, Moeda *alvo);
@@ -56,14 +54,10 @@ Moeda *moedas_encontra_por_pos(Moeda *head, int x, int y);
 void moedas_liberar_todas(Moeda **head);
 int moedas_contar(Moeda *head);
 
-// para os monstros
 bool monstros_inicializar(Monstro **m, int capacidade_inicial);
 void monstros_liberar(Monstro **m);
-// para criar um monstro próximo à posição do player; retorna índice ou -1
 int monstros_criar_na_direcao_player(Monstro *m, int qtd, int px, int py);
-// para desativar
 void monstros_desativar(Monstro *m, int idx);
-//para atualizar a posição dos monstros
 void monstros_atualizar(Monstro *m, int qtd, double dt, const Player *player);
 
 void player_inicializa(Player *p, int x, int y);
@@ -73,7 +67,6 @@ bool player_colide_monstro(const Player *p, Monstro *m, int qtd);
 double now_seconds(void);
 int rand_int(int min, int max);
 
-// funções para raylib
 void raylib_iniciar_janela(int largura, int altura, const char *titulo);
 void raylib_finalizar_janela(void);
 

@@ -2,55 +2,51 @@
 #include <stdlib.h>
 #include <time.h>
 #include "screen.h"
-#include "raylib.h"
+#include "cli-lib.h"
 #include "mapa.h"
 
-//#define MAX_MONSTROS 3
-//#define TEMPO_TOTAL_NIVEL 60.0
+#define MAX_MONSTROS 3
+#define TEMPO_TOTAL_NIVEL 60.0
 #define TEMPO_POR_MOEDA 3.0
 
-void verificar_condicoes_de_fim(const Player *player, double tempo_inicial);
+void verificar_condicoes_de_fim(Player *player, double tempo_inicial);
 
 int main() {
     Player player;
     Monstro *monstros = NULL;
-    //Moeda *moedas = NULL;
     double tempo_inicial;
 
     srand(time(NULL));
 
-    player_inicializa(&player, 100, 100);
+    player_inicializa(&player, 5, 5);
     monstros_inicializar(&monstros, MAX_MONSTROS);
     tempo_inicial = now_seconds();
 
-    InitWindow(800, 600, "Jogo das Moedas");
-    SetTargetFPS(60);
-    InitCoinSound();
+    keyboardInit();
 
-    while (!WindowShouldClose() && player.vivo) {
+    while (player.vivo) {
         double agora = now_seconds();
         double dt = agora - tempo_inicial;
+        char ch = keyboardRead();
 
-        if (IsKeyPressed(KEY_UP)) player.y -= 10;
-        if (IsKeyPressed(KEY_DOWN)) player.y += 10;
-        if (IsKeyPressed(KEY_LEFT)) player.x -= 10;
-        if (IsKeyPressed(KEY_RIGHT)) player.x += 10;
+        if (ch == 'w') player.y -= 1;
+        else if (ch == 's') player.y += 1;
+        else if (ch == 'a') player.x -= 1;
+        else if (ch == 'd') player.x += 1;
 
         CheckCoinCollision(player.x, player.y);
-
         monstros_atualizar(monstros, MAX_MONSTROS, dt, &player);
         verificar_condicoes_de_fim(&player, tempo_inicial);
 
-        BeginDrawing();
-        ClearBackground(RAYWHITE);
-        DrawGameMap();
-        DrawCircle(player.x, player.y, 8, BLUE);
-        EndDrawing();
+        screenClear();
+        DrawGameMapASCII(&player, monstros, MAX_MONSTROS);
+
+        struct timespec ts = {0, 50000000};
+        nanosleep(&ts, NULL);
     }
 
-    UnloadCoinSound();
-    CloseWindow();
+    keyboardClose();
     monstros_liberar(&monstros);
-
+    printf("Fim de jogo!\n");
     return 0;
 }

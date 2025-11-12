@@ -1,4 +1,4 @@
-#include "cli-lib.h"
+#include "../include/cli-lib.h"
 #include <sys/ioctl.h>
 #include <fcntl.h>
 

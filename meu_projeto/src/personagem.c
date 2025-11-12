@@ -1,35 +1,48 @@
 #include "personagem.h"
 #include "mapa.h"
-#include "cli-lib.h"
+#include "raylib.h"
 #include <stdio.h>
 
-void InitPlayer(Jogador *p, int startGridX, int startGridY)
-{
+void InitPlayer(Jogador *p, int startGridX, int startGridY) {
     p->x = startGridX;
     p->y = startGridY;
-    p->vivo = 1;
+    p->vivo = true;
     p->moedas = 0;
+
+    p->sprite = LoadTexture("assets/player.png");
+    p->tileSize = 32; 
 }
 
-void DrawPlayer(Jogador *p)
-{
-    screenGotoxy(p->x, p->y);
-    printf("P");
-}
+void UpdatePlayer(Jogador *p, int key, Mapa *m) {
+    if (!p->vivo) return;
 
-void UpdatePlayer(Jogador *p, int key)
-{
     switch (key) {
-        case 'w': p->y--; break;
-        case 's': p->y++; break;
-        case 'a': p->x--; break;
-        case 'd': p->x++; break;
+        case KEY_W: MovePlayer(p, 0, -1, m); break;
+        case KEY_S: MovePlayer(p, 0,  1, m); break;
+        case KEY_A: MovePlayer(p, -1, 0, m); break;
+        case KEY_D: MovePlayer(p,  1, 0, m); break;
     }
 
-    if (p->x < 0) p->x = 0;
-    if (p->x >= MAP_COLS) p->x = MAP_COLS - 1;
-    if (p->y < 0) p->y = 0;
-    if (p->y >= MAP_ROWS) p->y = MAP_ROWS - 1;
+    if (mapa_get(m, p->y, p->x) == CEL_MOEDA) {
+        p->moedas++;
+        mapa_set(m, p->y, p->x, CEL_VAZIA);
+    }
+}
 
-    CheckCoinCollision(p->x, p->y);
+void MovePlayer(Jogador *p, int dx, int dy, const Mapa *m) {
+    int newX = p->x + dx;
+    int newY = p->y + dy;
+    if (newX < 0 || newX >= m->colunas || newY < 0 || newY >= m->linhas) return;
+    if (mapa_get(m, newY, newX) == CEL_PAREDE) return;
+    p->x = newX;
+    p->y = newY;
+}
+
+void DrawPlayer(const Jogador *p) {
+    // Desenha com Raylib em vez de printf
+    DrawTexture(p->sprite, p->x * p->tileSize, p->y * p->tileSize, WHITE);
+}
+
+void FreePlayer(Jogador *p) {
+    UnloadTexture(p->sprite);
 }

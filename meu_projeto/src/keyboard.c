@@ -1,55 +1,32 @@
+#include <stdio.h>
 #include <termios.h>
 #include <unistd.h>
+#include <fcntl.h>
+#include <stdbool.h>
 
-#include "keyboard.h"
+static struct termios oldt, newt;
 
-static struct termios initialSettings, newSettings;
-static int peekCharacter;
+void keyboardInit(void) {
+    tcgetattr(STDIN_FILENO, &oldt);
+    newt = oldt;
+    newt.c_lflag &= ~(ICANON | ECHO);
+    tcsetattr(STDIN_FILENO, TCSANOW, &newt);
 
-
-void keyboardInit()
-{
-    tcgetattr(0,&initialSettings);
-    newSettings = initialSettings;
-    newSettings.c_lflag &= ~ICANON;
-    newSettings.c_lflag &= ~ECHO;
-    newSettings.c_lflag &= ~ISIG;
-    newSettings.c_cc[VMIN] = 1;
-    newSettings.c_cc[VTIME] = 0;
-    tcsetattr(0, TCSANOW, &newSettings);
+    int flags = fcntl(STDIN_FILENO, F_GETFL, 0);
+    fcntl(STDIN_FILENO, F_SETFL, flags | O_NONBLOCK);
 }
 
-void keyboardDestroy()
-{
-    tcsetattr(0, TCSANOW, &initialSettings);
+void keyboardClose(void) {
+    tcsetattr(STDIN_FILENO, TCSANOW, &oldt);
 }
 
-int keyboardHit() {
-    unsigned char ch;
-    int nread;
-
-    if (peekCharacter != -1) return 1;
-    newSettings.c_cc[VMIN] = 0;
-    tcsetattr(0, TCSANOW, &newSettings);
-    nread = read(0, &ch, 1);
-    newSettings.c_cc[VMIN] = 1;
-    tcsetattr(0, TCSANOW, &newSettings);
-
-    if (nread == 1) {
-        peekCharacter = ch;
-        return 1;
-    }
-    return 0;
-}
-
-int keyboardRead() {
-    char ch;
-
-    if (peekCharacter != -1) {
-        ch = peekCharacter;
-        peekCharacter = -1;
-        return ch;
-    }
-    read(0, &ch, 1);
+char keyboardRead(void) {
+    char ch = 0;
+    read(STDIN_FILENO, &ch, 1);
     return ch;
+}
+
+bool keyboardIsPressed(char key) {
+    char c = keyboardRead();
+    return (c == key);
 }

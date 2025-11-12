@@ -7,7 +7,7 @@ static struct termios oldt, newt;
 void cli_init() {
     tcgetattr(STDIN_FILENO, &oldt);
     newt = oldt;
-    newt.c_lflag &= ~(ICANON | ECHO); // desativa buffer 
+    newt.c_lflag &= ~(ICANON | ECHO); 
     tcsetattr(STDIN_FILENO, TCSANOW, &newt);
     cli_hide_cursor();
 }
@@ -64,7 +64,7 @@ int cli_kbhit() {
 
     return 0;
 }
-
+    
 int cli_getch() {
     int ch;
     struct termios oldt, newt;

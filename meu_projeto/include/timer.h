@@ -20,14 +20,14 @@ typedef struct timer {
     struct timer *next;
 } timer;
 
+timer *criarTimer(const char *nome, ModoTimer modo, float duracao, bool iniciar);
+timer *criarTimerPrincipal(float segundos);
+timer *criarTimerPerseguicao(void);
+
 void adicionarTimer(timer *t);
 void removerTimer(timer *t);
 void destruirTimer(timer *t);
 void destruirTodosTimers(void);
-
-timer *criarTimer(const char *nome, ModoTimer modo, float duracao, bool iniciar);
-timer *criarTimerPrincipal(float segundos);
-timer *criarTimerPerseguicao(void);
 
 void iniciarTimer(timer *t);
 void pararTimer(timer *t);

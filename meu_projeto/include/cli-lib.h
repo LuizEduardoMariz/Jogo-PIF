@@ -3,8 +3,8 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-#include <unistd.h>   // para usleep
-#include <termios.h>  // para controle do modo de terminal
+#include <unistd.h>   
+#include <termios.h>  
 #include <stdbool.h>
 
 void cli_init();

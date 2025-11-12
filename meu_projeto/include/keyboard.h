@@ -3,7 +3,7 @@
 
 void keyboardInit(void);
 void keyboardClose(void);
-int  keyboardRead(void); // retorna char (int) lido ou -1
+int  keyboardRead(void);
 int  keyboardKbhit(void);
 
 #endif
